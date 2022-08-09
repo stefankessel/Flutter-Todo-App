@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test1/animation_screen.dart';
 
 import 'add_todo_screen.dart';
 import 'model/todo_model.dart';
@@ -56,9 +55,8 @@ class MyHome extends StatelessWidget {
                 ],
               ),
             );
-          }
-          else{
-            return Text("Something went wrong");
+          } else {
+            return const Center(child: Text("Something went wrong"));
           }
         },
       ),
@@ -66,7 +64,6 @@ class MyHome extends StatelessWidget {
   }
 
   Dismissible _todoCard(Todo todo, BuildContext context) {
-    bool isDismissableConfirmed = false;
     return Dismissible(
       key: UniqueKey(),
       background: Container(
@@ -75,55 +72,92 @@ class MyHome extends StatelessWidget {
       ),
       direction: DismissDirection.endToStart,
       confirmDismiss: (direction) async {
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("Confirm delete"),
-              actions: [
-                TextButton(
-                  onPressed: (() {
-                    isDismissableConfirmed = true;
-                    Navigator.of(context).pop();
-                  }),
-                  child: const Text("Confirm"),
-                ),
-                TextButton(
-                  onPressed: (() {
-                    isDismissableConfirmed = false;
-                    Navigator.of(context).pop();
-                  }),
-                  child: const Text("Cancel"),
-                )
-              ],
-            );
-          },
-        );
-        return isDismissableConfirmed;
+        return await _customConfirmationDialog(context: context, todo: todo);
       },
       child: Card(
           elevation: 20,
           margin: const EdgeInsets.only(bottom: 10),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(" ${todo.task}"),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: (() {}),
-                        icon: const Icon(Icons.add_task),
-                      ),
-                      IconButton(
-                        onPressed: (() {}),
-                        icon: const Icon(Icons.cancel),
-                      )
-                    ],
-                  ),
-                ]),
+            child: ListTile(
+              title: Text(todo.task),
+              subtitle: Text(todo.description ?? ""),
+              trailing: IconButton(
+                onPressed: (() {
+                  _displayCrudOptionDialog(context, todo);
+                }),
+                icon: const Icon(Icons.menu),
+              ),
+            ),
           )),
     );
   }
+
+  Future<dynamic> _displayCrudOptionDialog(
+      BuildContext context, Todo todo) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          children: [
+            SimpleDialogOption(
+              child: GestureDetector(
+                onTap: (() {
+                  _customConfirmationDialog(context: context, todo: todo)
+                      .then((value) => Navigator.of(context).pop());
+                }),
+                child: const ListTile(
+                  title: Text("Löschen"),
+                  trailing: Icon(Icons.delete),
+                ),
+              ),
+            ),
+            const Divider(
+              height: 2,
+            ),
+            SimpleDialogOption(
+              child: GestureDetector(
+                onTap: () {},
+                child: const ListTile(
+                  title: Text("Update"),
+                  trailing: Icon(Icons.update),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+Future _customConfirmationDialog(
+    {required BuildContext context, required Todo todo}) async {
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Confirm delete"),
+        actions: [
+          TextButton(
+            onPressed: (() {
+              //isDismissableConfirmed = true;
+              context.read<TodoBloc>().add(DeleteTodoEvent(todo: todo));
+              Navigator.of(context).pop(true);
+              //Navigator.pushReplacement(context, Mater)
+            }),
+            child: const Text("Confirm"),
+          ),
+          TextButton(
+            onPressed: (() {
+              //isDismissableConfirmed = false;
+
+              Navigator.of(context).pop(false);
+            }),
+            child: const Text("Cancel"),
+          )
+        ],
+      );
+    },
+  );
 }

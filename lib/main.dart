@@ -9,20 +9,17 @@ import 'package:test1/todo_bloc/todo_bloc.dart';
 import 'home.dart';
 
 void main() {
-  if (!Platform.isIOS) {
-    runApp(CupertinoApp(
-      localizationsDelegates: [DefaultMaterialLocalizations.delegate],
-      home: MyApp(),
-    ));
-  } else {
-    runApp(MultiBlocProvider(
-      providers: [BlocProvider(create: ((context) => TodoBloc()..add(LoadTodoEvent(todos: [
-    Todo(id: 1.toString(), task: "kochen"),
-    Todo(id: 2.toString(), task: "einkaufen")
-  ]))))],
-      child: const MyApp(),
-    ));
-  }
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider(
+          create: ((context) => TodoBloc()
+            ..add(LoadTodoEvent(todos: [
+              Todo(task: "kochen"),
+              Todo(task: "einkaufen")
+            ]))))
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
+
 class Todo {
-  String? id;
+  UniqueKey? id;
   String task;
   String? description;
   bool? isCancelled;
@@ -11,12 +13,13 @@ class Todo {
       this.description,
       this.isCancelled,
       this.isCompleted}) {
+        id = UniqueKey();
     isCancelled = isCancelled ?? false;
     isCompleted = isCompleted ?? false;
   }
 
 
-Todo updateTodo({  String? id,
+Todo updateTodo({  UniqueKey? id,
   String? task,
   String? description,
   bool? isCancelled,
@@ -31,7 +34,7 @@ Todo updateTodo({  String? id,
   }
 
   static List<Todo> todos =[
-    Todo(id: 1.toString(), task: "kochen"),
-    Todo(id: 2.toString(), task: "einkaufen")
+    Todo(task: "kochen"),
+    Todo(task: "einkaufen")
   ];
 }
