@@ -31,7 +31,6 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     if (state is TodoLoadedState) {
       final state = this.state as TodoLoadedState;
 
-      //TodoLoadedState(todos: List.from(state.todos)..remove(event.todo)),
       List<Todo> todos =
           state.todos.where((todo) => todo.id != event.todo.id).toList();
 

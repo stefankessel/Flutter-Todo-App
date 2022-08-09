@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:test1/application/theme_provider/theme_provider.dart';
 
 import 'add_todo_screen.dart';
 import 'model/todo_model.dart';
-import 'todo_bloc/todo_bloc.dart';
+import 'application/todo_bloc/todo_bloc.dart';
 
 class MyHome extends StatelessWidget {
   const MyHome({Key? key}) : super(key: key);
@@ -12,55 +14,63 @@ class MyHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("MyApp"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: (() {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => MyAddTodoScreen()));
-            }),
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
-      body: BlocBuilder<TodoBloc, TodoState>(
-        builder: (context, state) {
-          if (state is TodoLoadingState) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is TodoLoadedState) {
-            return Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Add Todo",
-                      style: TextStyle(fontSize: 20),
+    return Consumer<ThemeService>(
+        builder: (context, ThemeService themeServiceState, child) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("MyApp"),
+          centerTitle: true,
+          actions: [
+            IconButton(
+                onPressed: (() {
+                  themeServiceState.toogleTheme();
+                }),
+                icon: themeServiceState.isDarkMode ? const Icon(Icons.nightlight) : const Icon(Icons.wb_sunny)),
+            IconButton(
+              onPressed: (() {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => MyAddTodoScreen()));
+              }),
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        body: BlocBuilder<TodoBloc, TodoState>(
+          builder: (context, state) {
+            if (state is TodoLoadingState) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is TodoLoadedState) {
+              return Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "Todos",
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: state.todos.length,
-                    itemBuilder: ((context, index) {
-                      return _todoCard(state.todos[index], context);
-                    }),
-                  )
-                ],
-              ),
-            );
-          } else {
-            return const Center(child: Text("Something went wrong"));
-          }
-        },
-      ),
-    );
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: state.todos.length,
+                      itemBuilder: ((context, index) {
+                        return _todoCard(state.todos[index], context);
+                      }),
+                    )
+                  ],
+                ),
+              );
+            } else {
+              return const Center(child: Text("Something went wrong"));
+            }
+          },
+        ),
+      );
+    });
   }
 
   Dismissible _todoCard(Todo todo, BuildContext context) {
